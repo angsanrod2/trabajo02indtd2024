@@ -1,0 +1,495 @@
+---
+title: "TRABAJO 2 TEORIA DE LA DECISION"
+author: "Ángela"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+```{r message=FALSE, warning=FALSE, paged.print=FALSE }
+source("teoriadecision_funciones_multicriterio.R")
+source("teoriadecision_funciones_multicriterio_diagram.R")
+source("teoriadecision_funciones_multicriterio_utiles.R")
+```
+
+
+
+# Enunciado del Problema
+
+Una familia está en proceso de seleccionar su futura vivienda y necesita decidir entre cinco alternativas disponibles las cuales tienen características distintas:
+
+- **Casa en el Pueblo **
+- **Casa en la Ciudad **
+- **Casa en las Afueras**
+- **Casa en la playa**
+- **Casa en el Campo**
+
+Para ello, la familia ha identificado seis criterios principales que considera importantes para tomar su decisión:
+
+1. **Ubicación**: Proximidad a centros educativos, lugares de trabajo y servicios esenciales.Puntuamos este criterios de 0 a 10, siendo esta última la mejor ubicación.
+
+2. **Precio**: Costo de adquisición y condiciones de financiamiento disponibles.Trabajamos con miles de euros.
+
+3. **Tamaño y Distribución**: Superficie total de la vivienda y la disposición de sus espacios.Trabajaremos entre criterio con unidades en metros cuadrados.
+
+4. **Seguridad**: Nivel de seguridad del área, incluyendo índices de delincuencia y disponibilidad de sistemas de vigilancia.Puntuamos este criterios de 0 a 10, siendo esta última la mejor.
+
+5. **Infraestructura y Servicios**: Calidad y disponibilidad de servicios básicos como agua, electricidad, internet, transporte público y áreas verdes cercanas.Puntuamos este criterios de 0 a 10, siendo esta última la mejor.
+
+6. **Estado de la Vivienda**: Condiciones generales de la propiedad, incluyendo si es nueva o usada, posibles necesidades de remodelación y materiales de construcción.Puntuamos este criterios de 0 a 10, siendo esta última la mejor.
+
+Tras haber visitado las distintas opciones (alternativas) y hacer un estudio basándonos en los criterios, obtenemos que:
+
+#### **A1: Casa en el pueblo**  
+  - **Ubicación:** 9
+  - **Precio:** 120
+  - **Tamaño y distribución:** 70 m²
+  - **Seguridad:** 6
+  - **Infraestuctura y vivienda:** 9
+  - **Estado de la vivienda:** 8
+  
+#### **A2: Casa en la Ciudad**
+  - **Ubicación**: 10 (proximidad máxima a servicios esenciales)
+  - **Precio**: 250
+  - **Tamaño y distribución**: 85 m²
+  - **Seguridad**: 7
+  - **Infraestructura y servicios**: 10 (calidad máxima de servicios básicos)
+  - **Estado de la vivienda**: 9
+  
+#### **A3: Casa en las Afueras**
+  - **Ubicación**: 8 (moderada cercanía a centros educativos y laborales)
+  - **Precio**: 200
+  - **Tamaño y distribución**: 125 m²
+  - **Seguridad**: 8 (barrios más tranquilos)
+  - **Infraestructura y servicios**: 7
+  - **Estado de la vivienda**: 7
+
+#### **A4: Casa en la Playa**
+  - **Ubicación**: 7 (alejada de centros urbanos)
+  - **Precio**: 300
+  - **Tamaño y distribución**: 110 m²
+  - **Seguridad**: 4 (menor vigilancia en áreas remotas)
+  - **Infraestructura y servicios**: 6 (limitaciones de servicios básicos en zonas costeras)
+  - **Estado de la vivienda**: 9
+
+#### **A5: Casa en el Campo**
+  - **Ubicación**: 6 (mayor distancia de servicios esenciales)
+  - **Precio**: 160
+  - **Tamaño y distribución**: 140 m²
+  - **Seguridad**: 9 (entornos más seguros y tranquilos)
+  - **Infraestructura y servicios**: 7
+  - **Estado de la vivienda**: 8
+
+
+Los pesos serían los siguientes: <br>
+  - **Ubicación**: 4 <br>
+    La proximidad a servicios esenciales y centros educativos/laborales es crucial.<br>
+  - **Precio**: 3.5 <br>
+    El presupuesto es un factor determinante en cualquier decisión de compra.<br>
+  - **Tamaño y Distribución**: 2.5 <br>
+    La amplitud y funcionalidad de los espacios son relevantes, pero no tanto como otros        criterios. <br>
+  - **Seguridad**: 3.5 <br>
+    La tranquilidad y protección de la familia son esenciales. <br>
+  - **Infraestructura y Servicios**: 2 <br>
+    La disponibilidad de servicios básicos impacta en la calidad de vida.<br>
+  - **Estado de la Vivienda**: 2.5 <br>
+    Las condiciones de la casa son importantes, pero pueden ajustarse con remodelaciones si     el presupuesto lo permite. <br>
+    
+Recogiendo todos los datos que hemos visto hasta ahora obtenemos la siguiente tabla:
+
+
+```{r warning=FALSE, warning=FALSE, DATOS}
+library(kableExtra)
+
+# Criterios:
+criterios <- c("Ubicación", "Precio", "Tamaño y Distribución", "Seguridad", "Infraestructura y Servicios", "Estado de la Vivienda")
+
+#Objetivo para cada criterio:
+min_max <- c("Max", "Min", "Max", "Max", "Max", "Max")
+
+#Alternativas:
+alternativas <- c("A1", "A2", "A3", "A4", "A5")
+A1 <- c(9, 120, 70, 6, 9, 8)
+A2 <- c(10, 250, 85, 7, 10, 9)
+A3 <- c(8, 200, 125, 8, 7, 7)
+A4 <- c(7, 300, 110, 4, 6, 9)
+A5 <- c(6, 160, 140, 9, 7, 8)
+tipo <- c("II", "III", "II", "II", "II", "II") # Ejemplo de clasificación
+
+# Parámetros
+q <- c(1, 0, 1, 1, 1, 1) # Valores de q
+p <- c(4, 3.5, 2.5, 3.5, 2, 2.5) # Valores de los pesos
+s <- c(3, 50, 20, 2, 2, 2) # Valores de s
+
+# Crear tabla
+tabla <- data.frame(
+  "Criterios" = criterios, "Min/Max" = min_max, A1, A2, A3, A4, A5,tipo, p, q, s )
+
+print(tabla)
+
+```
+Los criterios de Ubicación, Tamaño y Distribución, Seguridad, Infraestructura y Servicios, Estado de la Vivienda han sido seleccionados con un Tipo II (quasi-lineal), puesto que son criterios con escalas de 0 a 10 o métricas donde las diferencias impactan de forma gradual y clara.Todos estos criterios son de Maximizar.
+
+En cambio, para el criterio Precio hemos seleccionado Tipo III (lineal): Criterio continuo donde cualquier diferencia impacta directamente.El objetivo de este criterio es de Minimizar.
+
+Ahora que hemos definido los datos, volvemos al problema inicial, **¿Cúal será la mejor casa que la familia debe elegir basandose en los criterios ya definidos?**
+Para poder resolver esta pregunta, vamos a resolver el problema a través de distintos métodos. Vamos a aplicar el método Promethee para ordenar las alternativas y obtener la mejor solución, el método Electre y AHP.
+
+<br>
+Creamos la matriz de decision con los datos obtenidos:
+
+```{r DATOS2}
+criterios<-c("Ubicacion","Precio", "Tamaño", "Seguridad","Servicios","Estado")
+datos = multicriterio.crea.matrizdecision(c(9,-120, 70, 6,  9, 8,
+                                           10,-250, 85, 7, 10, 9,
+                                            8,-200, 125, 8, 7, 7,
+                                            7,-300, 110, 4, 6, 9,
+                                            6,-160, 140, 9, 7, 8),
+                                    numalternativas = 5, numcriterios = 6,
+                                    v.nombresalt = alternativas,
+                                    v.nombrescri = criterios)
+datos
+```
+
+
+#### **Método Promethee**
+Para aplicar este método, vamos a utilizar los datos(matriz de decisión) que hemos creado anteriormente, además vamos a crear la tabla de preferencia:
+```{r}
+tabla_pref <- matrix(c (2,1,4,3,
+                        3,0,3.5,50,
+                        2,1,2.5,20,
+                        2,1,3.5,2,
+                        2,1,2,2,
+                        2,1,2.5,2
+                        ), ncol = 4, byrow = T)
+tabla_pref
+```
+**Método Promethee I**
+```{r}
+tab.Pthee.i <- multicriterio.metodo.promethee_i(datos, pesos.criterios = tabla_pref[,3]/sum(tabla_pref[,3]),
+tab.fpref = tabla_pref)
+tab.Pthee.i
+qgraph::qgraph(tab.Pthee.i$tablarelacionsupera)
+```
+<br>
+Observando en la salida los flujos de Entrada y Salida podemos ver que A1 y A5 son altamente preferidas por otras alternativas (flujos de entrada altos). Concretamente la mejor es A1 con mayor flujo de entrada y menor flujo de salida.
+
+Si vemos las relaciones de Superación vemos como A1 supera consistentemente a las demás,
+A5 tiene un buen desempeño relativo y A4 no supera a ninguna alternativa. Luego la mejor alternativa según el promethee I es A1 (casa en el pueblo).
+
+**Método Promethee II**
+```{r Promethee-II}
+tab.Pthee.ii <- multicriterio.metodo.promethee_ii(datos, pesos.criterios = tabla_pref[,3]/sum(tabla_pref[,3]),
+tab.fpref = tabla_pref)
+tab.Pthee.ii
+qgraph::qgraph(tab.Pthee.ii$tablarelacionsupera)
+
+```
+
+Ordenación final alternativas del Método Promethee II:
+```{r Order}
+order(tab.Pthee.ii$vflujos.netos,decreasing = T)
+```
+Con este método vemos que según la ordenación, A1 vuelve a ser la mejor alternativa, seguida de A5 mientras que A4 sigue siendo la peor alternativa.
+Sigue siendo la alternativa que supera consistentemente a las demás, luego A1 (casa en el pueblo) es la mejor para el promethee II.
+
+
+**Metodo Promethee I medias **
+```{r Medias-I}
+tab.Pthee.i_medias <- multicriterio.metodo.promethee_i_med(datos,
+ pesos.criterios = tabla_pref[,3]/sum(tabla_pref[,3]),tab.fpref = tabla_pref)
+tab.Pthee.i_medias
+qgraph::qgraph(tab.Pthee.i_medias$tablarelacionsupera)
+```
+
+Viendo los resultados vemos que A1 supera a todas las demás alternativas, mostrando su posición dominante. Vemos que A5 supera a A2, A3, y A4, siendo la segunda más fuerte mientras que A4 no supera a ninguna alternativa, colocándola en la última posición.
+
+Luego la casa en el pueblo es la mejor alternativa según el método promethee I medias.
+
+**Metodo Promethee II medias**
+```{r Medias-II}
+tab.Pthee.ii_medias <- multicriterio.metodo.promethee_ii_med(datos,pesos.criterios = tabla_pref[,3]/sum(tabla_pref[,3]),tab.fpref = tabla_pref)
+tab.Pthee.ii_medias
+qgraph::qgraph(tab.Pthee.ii_medias$tablarelacionsupera)
+```
+
+Ordenación final alternativas del Método Promethee II Medias:
+```{r Order-2}
+order(tab.Pthee.ii_medias$vflujos.netos,decreasing = T)
+```
+Vemos como los resultados coinciden con el método promethee II, en el que A1 (casa de campo) es la mejor alternativa tal y como refleja el orden final.
+
+Podemos ver que para el método Promethee y sus variantes la mejor alternativa coinciden en todos ellos, siendo la casa en el campo, alternativa 1.
+
+#### **Método Electre**
+
+Para poner en práctica este método, vamos a seguir utilizando la misma matriz de decisión que hemos utilizado en el método promethee.
+```{r}
+datos = multicriterio.crea.matrizdecision(c(9,-120, 70, 6,  9, 8,
+                                           10,-250, 85, 7, 10, 9,
+                                            8,-200, 125, 8, 7, 7,
+                                            7,-300, 110, 4, 6, 9,
+                                            6,-160, 140, 9, 7, 8),
+                                    numalternativas = 5, numcriterios = 6,
+                                    v.nombresalt = alternativas,
+                                    v.nombrescri = criterios)
+datos
+pesos.criterios = tabla_pref[,3]/sum(tabla_pref[,3])
+```
+Una vez aclarado los datos con los que vamos a trabajar, vamos ahora a aplicar el método electre para ver cuales serian las mejores alternativas:
+
+```{r Electre-Data}
+sal7 <- multicriterio.metodoELECTRE_I(datos,
+                                      pesos.criterios = pesos.criterios,
+                                      nivel.concordancia.minimo.alpha = 0.7,
+                                      no.se.compensan = c(Inf, 100, Inf, Inf, Inf, Inf),
+                                      que.alternativas = T)
+sal7
+qgraph::qgraph(sal7$relacion.dominante)
+```
+
+Vemos como A1, A2, y A5 forman parte del núcleo aproximado, lo que indica que son las alternativas más fuertes y preferidas según el análisis. 
+Reducimos el alfha para sacar mejores conclusiones:
+
+```{r Electre-Reduccion}
+sal7_reducida <- multicriterio.metodoELECTRE_I(datos,
+                                      pesos.criterios = pesos.criterios,
+                                      nivel.concordancia.minimo.alpha = 0.52,
+                                     no.se.compensan = c(Inf,100,Inf,Inf,Inf, Inf),
+                                      que.alternativas = c(1,2,5))
+sal7_reducida
+qgraph::qgraph(sal7_reducida$relacion.dominante)
+```
+
+Aplicando el método electre, podemos observar como A1 (casa en el pueblo) es mejor alternativa, sin embargo para este método la segunda mejor alternativa es A2 en lugar de A5 como teníamos en el método promethee.
+
+#### **Método AHP**
+
+Relación entre criterios:
+```{r}
+
+criterio_df <- multicriterio.crea.matrizvaloraciones_mej(c(2,3,2,4,3,
+                                                     3,1,4,3,
+                                                     1/3,2,1,
+                                                     4,3,
+                                                     1/2), 
+                                                   numalternativas = 6,
+                                                   v.nombres.alternativas = criterios)
+kable(criterio_df)
+```
+
+Criterios dos a dos:
+
+```{r}
+ubicacion_2 <- multicriterio.crea.matrizvaloraciones_mej(
+  c(1/2,2,3,4,3,4,5,2,3,2),
+  numalternativas = 5,
+  v.nombres.alternativas = alternativas)
+#Ubicacion:
+ubicacion_2
+
+precio_2 <- multicriterio.crea.matrizvaloraciones_mej(
+  c(4,3,5,2,1/3,3,1/2,2,1/2,1/5),
+  numalternativas = 5,
+  v.nombres.alternativas = alternativas)
+#Precio
+precio_2
+
+tamaño_2 <- multicriterio.crea.matrizvaloraciones_mej(
+  c(1/2,1/4,1/3,1/5,1/3,1/2,1/4,3,1/2,1/3),
+  numalternativas = 5,
+  v.nombres.alternativas = alternativas)
+#Tamaño e infraestucturas
+tamaño_2
+
+seguridad_2 <- multicriterio.crea.matrizvaloraciones_mej(
+  c(1/2,1/3,3,1/4,1/2,4,1/3,5,1/2,1/5),
+  numalternativas = 5,
+  v.nombres.alternativas = alternativas)
+#Seguridad
+seguridad_2
+
+servicios_2 <- multicriterio.crea.matrizvaloraciones_mej(
+  c(1/2,3,2,3,3,2,3,2,1,1/2),
+  numalternativas = 5,
+  v.nombres.alternativas = alternativas)
+#Servicios
+servicios_2
+
+estado_2 <- multicriterio.crea.matrizvaloraciones_mej(
+  c(1/2,2,1/2,1,3,1,2,1/3,1/2,2),
+  numalternativas = 5,
+  v.nombres.alternativas = alternativas)
+#Estados
+estado_2
+
+```
+
+Una vez definido las matrices de comparaciones de criterios y los criterios a pares dos a dos, aplicamos este método:
+
+```{r}
+### Identificar el diagrama de jerarquias de este problema de decisión
+
+xmatn01 <- criterio_df
+xmatn02 <- array(NA,dim = c(5,5,6)) 
+xmatn02[,,1] <- ubicacion_2
+xmatn02[,,2] <- precio_2
+xmatn02[,,3] <- tamaño_2
+xmatn02[,,4] <- seguridad_2
+xmatn02[,,5] <- servicios_2
+xmatn02[,,6] <- estado_2
+dimnames(xmatn02)[[1]] <- alternativas
+dimnames(xmatn02)[[2]] <- alternativas
+dimnames(xmatn02)[[3]] <- criterios
+multicriterio.metodoahp.diagrama(xmatn01,xmatn02) 
+```
+
+Según este diagrama de jerarquías que hemos construidos a partir de las matrices de comparaciones a pares podemos observar como la mejor alternativa es A2 (casa en la ciudad), con un peso global del 25,03%. Sin embargo, la peor es A4 (casa en la playa) con un peso global del 10,29%.
+
+Ponderaciones asociadas a cada criterio manejado:  
+
+```{r Pond}
+#Pesos locales de la Matriz de Criterios
+p106 <- multicriterio.metodoAHP.variante3.basico(criterio_df)
+p106
+
+```
+Podemos observar que la Ubicación es el criterio más influyente en la toma de decisiones, seguido del precio. Seguramente por la situación económica en la que se encuentre la familia. El criterio del que menos se ha tenido en cuenta son los servicios de la vivienda.
+
+Ponderaciones de las alternativas en función de cada criterio.
+
+```{r AHP-Estatura}
+
+p106_ubicacion <-  multicriterio.metodoAHP.variante3.basico(ubicacion_2)
+p106_ubicacion
+```
+Si solo tenemos en cuenta la ubicación como criterio de elección de una vivienda, obtendríamos los siguientes resultados:  A2 > A1 > A3 > A4 > A5.
+Vemos como la casa en la ciudad, que corresponde con A2, es la que mejor ubicación tiene.
+
+```{r AHP-Peso}
+p106_precio <-  multicriterio.metodoAHP.variante3.basico(precio_2)
+p106_precio
+```
+Si solo tenemos en cuenta el precio como criterio de elección de una vivienda, obtendríamos los siguientes resultados:  A1 > A5 > A3 > A2 > A4.
+Vemos como A1 esa la mejor segun solo este criterio, puesto que es la más barata de todas las opciones.
+
+
+```{r AHP-Velocidad}
+p106_tamaño <-  multicriterio.metodoAHP.variante3.basico(tamaño_2)
+p106_tamaño
+```
+
+Si solo tenemos en cuenta el tamaño como criterio de elección de una vivienda, obtendríamos los siguientes resultados:  A5 > A3 > A4 > A2 > A1.
+Vemos A5 (casa en el campo) es la de mayor tamaño con respecto al resto.
+
+```{r AHP-Capacidad_Defensiva}
+p106_seguridad <-  multicriterio.metodoAHP.variante3.basico(seguridad_2)
+p106_seguridad
+```
+
+Si solo tenemos en cuenta la seguridad como criterio de elección de una vivienda, obtendríamos los siguientes resultados:  A5 > A3 > A2 > A1 > A4.
+Esta alternativa A5 (casa en el campo) es la más segura de todas las opciones.
+
+```{r AHP-Edad}
+p106_servicios <-  multicriterio.metodoAHP.variante3.basico(servicios_2)
+p106_servicios
+```
+
+Si solo tenemos en cuenta la infraestuctura y los servicios como criterio de elección de una vivienda, obtendríamos los siguientes resultados:  A2 > A1 > A3 > A5 > A4
+
+
+```{r AHP-Valor_mercado}
+p106_estado <-  multicriterio.metodoAHP.variante3.basico(estado_2)
+p106_estado
+```
+
+Si solo tenemos en cuenta el estado de una vivienda como criterio de elección de una vivienda, obtendríamos los siguientes resultados:  A2 > A4 > A1 > A5 > A3.
+La casa en la ciudad, A2, es la que se encuentra en mejores condiciones.
+
+
+
+Consistencia de las preferencias del centro decisor.
+
+```{r AHP-Inconsistencia}
+multicriterio.metodoAHP.coef.inconsistencia(criterio_df)
+```
+
+La consistencia es aceptable. Por tanto, las preferencias expresadas en la matriz de comparación de criterios son razonablemente consistentes.
+
+Consistencia por criterios:
+```{r AHP-C1}
+multicriterio.metodoAHP.coef.inconsistencia(ubicacion_2)
+# Ubicacion: Consistencia aceptable
+```
+
+```{r AHP-C2}
+multicriterio.metodoAHP.coef.inconsistencia(precio_2)
+# Precio: Consistencia aceptable
+```
+
+```{r AHP-C3}
+multicriterio.metodoAHP.coef.inconsistencia(tamaño_2)
+# Tamaño: Consistencia aceptable
+```
+
+```{r AHP-C4}
+multicriterio.metodoAHP.coef.inconsistencia(seguridad_2)
+# Seguridad: Consistencia aceptable
+```
+
+```{r AHP-C5}
+multicriterio.metodoAHP.coef.inconsistencia(servicios_2)
+# Servicios: Consistencia aceptable
+```
+
+```{r AHP-C6}
+multicriterio.metodoAHP.coef.inconsistencia(estado_2)
+# Estado: Consistencia aceptable
+```
+
+
+Prioridad global
+
+```{r AHP-PRIOR}
+ multicriterio.metodoAHP.pesosglobales_entabla(p106$valoraciones.ahp,
+                                                    rbind(p106_ubicacion$valoraciones.ahp,
+                                                          p106_precio$valoraciones.ahp,
+                                                          p106_tamaño$valoraciones.ahp,
+                                                          p106_seguridad$valoraciones.ahp,
+                                                          p106_servicios$valoraciones.ahp,
+                                                          p106_estado$valoraciones.ahp
+                                                          ))
+```
+La alternativa 2 (casa en la ciudad) es la que tiene la ponderación global mas alta, lo que indica que es la opción más preferida según todos los criterios que hemos trabajado.   
+La alternativa 1 sería la siguiente preferida, seguida de A5 y A3.   
+La alternativa 4 tiene la ponderación más baja, lo que sugiere que es la menos preferida en comparación con el resto de las opciones. 
+
+```{r}
+##ahp::RunGUI()
+library(ahp)
+datos123 = Load("datosAHP.ahp")
+Calculate(datos123)
+Visualize(datos123)
+print(datos123, priority = function(x) x$parent$priority["Total", x$name])
+
+#ANALIZAR
+Analyze(datos123, variable = "priority")
+
+#Analizar con Tabla Mejorada
+aa = AnalyzeTable(datos123)
+formattable::as.htmlwidget(aa)
+aab = AnalyzeTable(datos123,variable = "priority")
+formattable::as.htmlwidget(aab)
+
+
+```
+Nos quedamos con que la alteranatuva A2 (casa en la ciudad) es la mejor segun el método AHP.
+
+## CONCLUSIONES GENERALES
+
+El fin de este estudios es tomar una decisión entre 5 casas con distintas características. La característica más importante a tener en cuenta es la Ubicación, seguida del precio. Se tienen estas dos más en cuenta que el resto de criterios(siendo estas las menos relevantes).
+
+Usando la mayoría de criterios de selección (electre y promethee) se obtiene el mismo resultado principal: Seleccionar la Alternativa 1 correspondiente a la casa en el pueblo. Solo el método AHP selecciona la A2 (casa en la ciudad).
+Dependiendo del método empleado, a veces varía el orden de selección, pero en general las conclusiones se mantienen, ya que solo debemos seleccionar 1 alternativa.
+
+

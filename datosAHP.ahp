@@ -1,0 +1,111 @@
+Version: 2.0
+Alternatives: &alternatives
+  A1:
+  A2:
+  A3:
+  A4:
+  A5:
+Goal:
+  name: Eleccion de una vivienda
+  preferences:
+    pairwise:
+      - [Ubicación, Precio, 2]
+      - [Ubicación, Tamaño, 3]
+      - [Ubicación, Seguridad, 2]
+      - [Ubicación, Servicios, 4]
+      - [Ubicación, Estado, 3]
+      - [Precio, Tamaño, 3]
+      - [Precio, Seguridad, 1]
+      - [Precio, Servicios, 4]
+      - [Precio, Estado, 3]
+      - [Tamaño, Seguridad, 1/3]
+      - [Tamaño, Servicios, 2]
+      - [Tamaño, Estado, 1]
+      - [Seguridad, Servicios, 4]
+      - [Seguridad, Estado, 3]
+      - [Servicios, Estado, 1/2]
+  children:
+    Ubicación:
+      preferences:
+        pairwise:
+          - [A1, A2, 1/2]
+          - [A1, A3, 2]
+          - [A1, A4, 3]
+          - [A1, A5, 4]
+          - [A2, A3, 3]
+          - [A2, A4, 4]
+          - [A2, A5, 5]
+          - [A3, A4, 2]
+          - [A3, A5, 3]
+          - [A4, A5, 2]
+      children: *alternatives
+    Precio:
+      preferences:
+        pairwise:
+          - [A1, A2, 4]
+          - [A1, A3, 3]
+          - [A1, A4, 5]
+          - [A1, A5, 2]
+          - [A2, A3, 1/3]
+          - [A2, A4, 3]
+          - [A2, A5, 1/2]
+          - [A3, A4, 2]
+          - [A3, A5, 1/2]
+          - [A4, A5, 1/5]
+      children: *alternatives
+    Tamaño:
+      preferences:
+        pairwise:
+          - [A1, A2, 1/2]
+          - [A1, A3, 1/4]
+          - [A1, A4, 1/3]
+          - [A1, A5, 1/5]
+          - [A2, A3, 1/3]
+          - [A2, A4, 1/2]
+          - [A2, A5, 1/4]
+          - [A3, A4, 3]
+          - [A3, A5, 1/2]
+          - [A4, A5, 1/3]
+      children: *alternatives
+    Seguridad:
+      preferences:
+        pairwise:
+          - [A1, A2, 1/2]
+          - [A1, A3, 1/3]
+          - [A1, A4, 3]
+          - [A1, A5, 1/4]
+          - [A2, A3, 1/2]
+          - [A2, A4, 4]
+          - [A2, A5, 1/3]
+          - [A3, A4, 5]
+          - [A3, A5, 1/2]
+          - [A4, A5, 1/5]
+      children: *alternatives
+    Servicios:
+      preferences:
+        pairwise:
+          - [A1, A2, 1/2]
+          - [A1, A3, 3]
+          - [A1, A4, 2]
+          - [A1, A5, 3]
+          - [A2, A3, 3]
+          - [A2, A4, 2]
+          - [A2, A5, 3]
+          - [A3, A4, 2]
+          - [A3, A5, 1]
+          - [A4, A5, 1/2]
+      children: *alternatives
+    Estado:
+      preferences:
+        pairwise:
+          - [A1, A2, 1/2]
+          - [A1, A3, 2]
+          - [A1, A4, 1/2]
+          - [A1, A5, 1]
+          - [A2, A3, 3]
+          - [A2, A4, 1]
+          - [A2, A5, 2]
+          - [A3, A4, 1/3]
+          - [A3, A5, 1/2]
+          - [A4, A5, 2]
+      children: *alternatives
